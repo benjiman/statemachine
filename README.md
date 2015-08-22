@@ -24,7 +24,7 @@ public void traffic_light_typechecked_example() {
         .transition(FlashingAmber::new)
         .transition(Green::new);
 }
-
+```
 
 We can still have typechecked transitions even where multiple state transitions are possible
 ```java
