@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public interface State<DOMAINSTATETYPE> extends StateGuards<DOMAINSTATETYPE> {
+public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAINSTATETYPE> {
 
     @Override default void afterTransition(DOMAINSTATETYPE from) {}
     default void beforeTransition(DOMAINSTATETYPE to) {}
