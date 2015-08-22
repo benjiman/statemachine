@@ -1,4 +1,4 @@
-# lambda-type-references
+# State machines
 
 State machines in Java.
 
