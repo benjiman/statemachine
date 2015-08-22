@@ -27,6 +27,7 @@ public void traffic_light_typechecked_example() {
 ```
 
 We can still have typechecked transitions even where multiple state transitions are possible
+
 ```java
 static class Pending implements OrderStatus, BiTransitionTo<CheckingOut, Cancelled> {}
 
@@ -36,7 +37,6 @@ pending.transition(Refunded::new);   // Compile Error
 
 ```
 
-```
 Runtime checked we'd throw an exception if we can't transition
 
 ```java
