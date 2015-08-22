@@ -44,8 +44,7 @@ Runtime checked we'd throw an exception if we can't transition
 public void runtime_transitions_possible() {
    TrafficLight light = new Green();
    light = light
-       .transitionFrom(Green::new)
-       .to(SolidAmber::new)
+       .tryTransition(SolidAmber::new)
        .unchecked();
 
    assertTrue(light instanceof SolidAmber);
@@ -54,8 +53,7 @@ public void runtime_transitions_possible() {
 public void runtime_transitions_throw_exception_when_not_possible() {
     TrafficLight light = new Green();
     light = light
-            .transitionFrom(Green::new)
-            .to(Red::new)
+            .tryTransition(Red::new)
             .unchecked();
 }
 
@@ -74,8 +72,7 @@ public void behaviour_on_states() throws OhNoes {
     verifyZeroInteractions(emailSender);
 
     state = state
-            .transitionFrom(Pending::new)
-            .to(CheckingOut::new)
+            .tryTransition(CheckingOut::new)
             .orElseThrow(OhNoes::new)
             .transition(Purchased::new);
 

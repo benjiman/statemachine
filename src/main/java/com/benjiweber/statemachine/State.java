@@ -24,38 +24,32 @@ public interface State<DOMAINSTATETYPE> extends StateGuards<DOMAINSTATETYPE> {
         }
     }
 
-    interface OrElse<BASETYPE, ORIGINAL extends BASETYPE,DESIRED extends BASETYPE> {
+    interface OrElse<BASETYPE, DESIRED extends BASETYPE> {
         <E extends Exception> DESIRED orElseThrow(Supplier<E> e) throws E;
         BASETYPE ignoreIfInvalid();
         DESIRED unchecked();
     }
-    interface RequestTransitionTo<BASETYPE, ORIGINAL extends BASETYPE> {
-        <DESIRED extends BASETYPE> OrElse<BASETYPE, ORIGINAL, DESIRED> to(Supplier<DESIRED> constructor);
+    interface RequestTransitionTo<BASETYPE> {
+        <DESIRED extends BASETYPE> OrElse<BASETYPE, DESIRED> to(Supplier<DESIRED> constructor);
     }
-    default <ORIGINAL extends DOMAINSTATETYPE> RequestTransitionTo<DOMAINSTATETYPE, ORIGINAL> transitionFrom(Supplier<ORIGINAL> fromState) {
-        return new RequestTransitionTo<DOMAINSTATETYPE, ORIGINAL>() {
-            public <DESIRED extends DOMAINSTATETYPE> OrElse<DOMAINSTATETYPE, ORIGINAL, DESIRED> to(Supplier<DESIRED> desired) {
-                return new OrElse<DOMAINSTATETYPE, ORIGINAL, DESIRED>() {
-                    public <E extends Exception> DESIRED orElseThrow(Supplier<E> e) throws E {
-                        if (isInState(fromState) && canTransitionTo(desired)) {
-                            return desired.get();
-                        }
+    default <DESIRED extends DOMAINSTATETYPE> OrElse<DOMAINSTATETYPE, DESIRED> tryTransition(Supplier<DESIRED> desired) {
+        return new OrElse<DOMAINSTATETYPE, DESIRED>() {
+            public <E extends Exception> DESIRED orElseThrow(Supplier<E> e) throws E {
+                if (canTransitionTo(desired)) {
+                    return desired.get();
+                }
 
-                        throw e.get();
-                    }
-                    public DOMAINSTATETYPE ignoreIfInvalid() {
-                        try {
-                            return unchecked();
-                        } catch (InvalidStateTransitionException e) {
-                            return (DOMAINSTATETYPE)State.this;
-                        }
-                    }
-
-                    @Override
-                    public DESIRED unchecked() {
-                        return orElseThrow(InvalidStateTransitionException::new);
-                    }
-                };
+                throw e.get();
+            }
+            public DOMAINSTATETYPE ignoreIfInvalid() {
+                try {
+                    return unchecked();
+                } catch (InvalidStateTransitionException e) {
+                    return (DOMAINSTATETYPE)State.this;
+                }
+            }
+            public DESIRED unchecked() {
+                return orElseThrow(InvalidStateTransitionException::new);
             }
         };
     }

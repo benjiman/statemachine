@@ -54,6 +54,7 @@ public class StateMachineExample {
         Cancelled cancelled = pending.transition(Cancelled::new);
         // cancelled.transition(... compile failure, method doesn't exist
         Purchased purchased = checkingOut.transition(Purchased::new);
+
         // checkingOut.transition(Refunded::new) compile failure. Refunded is not a valid transition
     }
 
@@ -86,8 +87,7 @@ public class StateMachineExample {
         OrderStatus state = new Pending();
         assertTrue(state instanceof Pending);
         state = state
-            .transitionFrom(Pending::new)
-            .to(CheckingOut::new)
+            .tryTransition(CheckingOut::new)
             .unchecked();
         assertTrue(state instanceof CheckingOut);
     }
@@ -97,9 +97,8 @@ public class StateMachineExample {
         OrderStatus state = new Pending();
         assertTrue(state instanceof Pending);
         state = state
-                .transitionFrom(Pending::new)
-                .to(Refunded::new)
-                .ignoreIfInvalid();
+            .tryTransition(Refunded::new)
+            .ignoreIfInvalid();
         assertFalse(state instanceof Refunded);
         assertTrue(state instanceof Pending);
     }
@@ -109,9 +108,8 @@ public class StateMachineExample {
         OrderStatus state = new Pending();
         assertTrue(state instanceof Pending);
         state = state
-                .transitionFrom(Pending::new)
-                .to(Refunded::new)
-                .unchecked();
+            .tryTransition(Refunded::new)
+            .unchecked();
     }
 
     @Test(expected = OhNoes.class)
@@ -119,9 +117,8 @@ public class StateMachineExample {
         OrderStatus state = new Pending();
         assertTrue(state instanceof Pending);
         state = state
-                .transitionFrom(Pending::new)
-                .to(Refunded::new)
-                .orElseThrow(OhNoes::new);
+            .tryTransition(Refunded::new)
+            .orElseThrow(OhNoes::new);
     }
 
     @Test
@@ -134,10 +131,9 @@ public class StateMachineExample {
         verifyZeroInteractions(emailSender);
 
         state = state
-                .transitionFrom(Pending::new)
-                .to(CheckingOut::new)
-                .orElseThrow(OhNoes::new)
-                .transition(Purchased::new);
+            .tryTransition(CheckingOut::new)
+            .orElseThrow(OhNoes::new)
+            .transition(Purchased::new);
 
         state.notifyProgress(customer, emailSender);
 
@@ -149,10 +145,9 @@ public class StateMachineExample {
     public void guard_transition_and_capture_state_from_containing_class() throws OhNoes {
         OrderStatus state = new Pending();
         Purchased purchased = state
-                .transitionFrom(Pending::new)
-                .to(CheckingOut::new)
-                .orElseThrow(OhNoes::new)
-                .transition(Purchased::new);
+            .tryTransition(CheckingOut::new)
+            .orElseThrow(OhNoes::new)
+            .transition(Purchased::new);
 
         verifyZeroInteractions(failureLog);
 

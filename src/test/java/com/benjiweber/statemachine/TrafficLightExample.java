@@ -30,8 +30,7 @@ public class TrafficLightExample {
     public void runtime_transitions_possible() {
         TrafficLight light = new Green();
         light = light
-            .transitionFrom(Green::new)
-            .to(SolidAmber::new)
+            .tryTransition(SolidAmber::new)
             .unchecked();
 
         assertTrue(light instanceof SolidAmber);
@@ -42,18 +41,16 @@ public class TrafficLightExample {
     public void runtime_transitions_throw_exception_when_not_possible() {
         TrafficLight light = new Green();
         light = light
-                .transitionFrom(Green::new)
-                .to(Red::new)
-                .unchecked();
+            .tryTransition(Red::new)
+            .unchecked();
     }
 
     @Test
     public void runtime_transitions_can_ignore_errors() {
         TrafficLight light = new Green();
         light = light
-                .transitionFrom(Green::new)
-                .to(Red::new)
-                .ignoreIfInvalid();
+            .tryTransition(Red::new)
+            .ignoreIfInvalid();
 
         assertFalse(light instanceof Red);
         assertTrue(light instanceof Green);
