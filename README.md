@@ -37,7 +37,7 @@ pending.transition(Refunded::new);   // Compile Error
 
 ```
 
-Runtime checked we'd throw an exception if we can't transition
+When using the runtime checked transitions we'd throw an exception if we can't transition
 
 ```java
 @Test
