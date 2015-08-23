@@ -14,11 +14,11 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
     @Override default void afterTransition(DOMAINSTATETYPE from) {}
     default void beforeTransition(DOMAINSTATETYPE to) {}
 
-    default <T extends DOMAINSTATETYPE> boolean isInState(Supplier<T> constructor) {
-        return constructor.get().getClass().isInstance(this);
+    default <T extends DOMAINSTATETYPE> boolean isInState(NextState<T> constructor) {
+        return constructor.type().isInstance(this);
     }
 
-    default <T extends DOMAINSTATETYPE> void when(Supplier<T> constructor, Consumer<T> use) {
+    default <T extends DOMAINSTATETYPE> void when(NextState<T> constructor, Consumer<T> use) {
         if (isInState(constructor)) {
             use.accept((T)this);
         }
@@ -30,9 +30,9 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
         DESIRED unchecked();
     }
     interface RequestTransitionTo<BASETYPE> {
-        <DESIRED extends BASETYPE> OrElse<BASETYPE, DESIRED> to(Supplier<DESIRED> constructor);
+        <DESIRED extends BASETYPE> OrElse<BASETYPE, DESIRED> to(NextState<DESIRED> constructor);
     }
-    default <DESIRED extends DOMAINSTATETYPE> OrElse<DOMAINSTATETYPE, DESIRED> tryTransition(Supplier<DESIRED> desired) {
+    default <DESIRED extends DOMAINSTATETYPE> OrElse<DOMAINSTATETYPE, DESIRED> tryTransition(NextState<DESIRED> desired) {
         return new OrElse<DOMAINSTATETYPE, DESIRED>() {
             public <E extends Exception> DESIRED orElseThrow(Supplier<E> e) throws E {
                 if (canTransitionTo(desired)) {
@@ -57,8 +57,8 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
 
     class InvalidStateTransitionException extends RuntimeException {}
 
-    default <U extends DOMAINSTATETYPE> boolean canTransitionTo(Supplier<U> toState) {
-        return validTransitionTypes().contains(toState.get().getClass());
+    default <U extends DOMAINSTATETYPE> boolean canTransitionTo(NextState<U> toState) {
+        return validTransitionTypes().contains(toState.type());
     }
 
     default List<Class<?>> validTransitionTypes() {
