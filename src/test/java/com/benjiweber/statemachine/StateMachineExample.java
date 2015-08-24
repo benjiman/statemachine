@@ -11,9 +11,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import static com.benjiweber.statemachine.StateMachineExample.Customer.customer;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -154,6 +153,15 @@ public class StateMachineExample {
         purchased.transition(Failed::new);
 
         verify(failureLog).warning("Oh bother! failed from Purchased");
+    }
+
+    @Test
+    public void finding_valid_transitions_at_runtime() {
+        Pending pending = new Pending();
+        assertEquals(
+                asList(CheckingOut.class, Cancelled.class),
+                pending.validTransitionTypes()
+        );
     }
 
 

@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.toList;
 
 public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAINSTATETYPE> {
 
-    @Override default void afterTransition(DOMAINSTATETYPE from) {}
+    default void afterTransition(DOMAINSTATETYPE from) {}
     default void beforeTransition(DOMAINSTATETYPE to) {}
 
     default <T extends DOMAINSTATETYPE> boolean isInState(NextState<T> constructor) {
@@ -36,7 +36,7 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
         return new OrElse<DOMAINSTATETYPE, DESIRED>() {
             public <E extends Exception> DESIRED orElseThrow(Supplier<E> e) throws E {
                 if (canTransitionTo(desired)) {
-                    return desired.get();
+                    return applyGuards(desired.get());
                 }
 
                 throw e.get();
@@ -54,6 +54,13 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
         };
     }
 
+    default <U extends StateGuards> U applyGuards(U next) {
+        if (this instanceof StateGuards) {
+            ((StateGuards)this).beforeTransition(next);
+        }
+        next.afterTransition(this);
+        return next;
+    }
 
     class InvalidStateTransitionException extends RuntimeException {}
 
