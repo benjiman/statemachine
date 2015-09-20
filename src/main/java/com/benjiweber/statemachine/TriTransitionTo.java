@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 public interface TriTransitionTo<T extends StateGuards, U extends StateGuards, V extends StateGuards> extends BiTransitionTo<T, U> {
     interface ThreeTransition<T> extends Supplier<T> { }
     default V transition(ThreeTransition<V> constructor) {
-        return constructor.get();
+        return withGuards(constructor.get());
     }
 
 }
