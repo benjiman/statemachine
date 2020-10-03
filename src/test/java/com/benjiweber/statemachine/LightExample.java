@@ -8,14 +8,14 @@ public class LightExample {
 
     Switch lightSwitch = new Off();
 
-    public class Switch implements State<Switch> {
+    public sealed class Switch implements State<Switch> permits On, Off {
         @Override
         public void afterTransition(Switch from) {
             LightExample.this.lightSwitch = Switch.this;
         }
     }
-    public class On extends Switch implements TransitionTo<Off> {}
-    public class Off extends Switch implements TransitionTo<On> {}
+    public final class On extends Switch implements TransitionTo<Off> {}
+    public final class Off extends Switch implements TransitionTo<On> {}
 
     @Test
     public void stateful_switch() {

@@ -19,32 +19,32 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @RunWith(MockitoJUnitRunner.class)
 public class StateMachineExample {
 
-    interface OrderStatus extends State<OrderStatus> {
+    sealed interface OrderStatus extends State<OrderStatus> permits Pending, CheckingOut, Purchased, Shipped, Cancelled, Failed, Refunded {
         default void notifyProgress(Customer customer, EmailSender sender) {}
     }
-    static class Pending implements OrderStatus, BiTransitionTo<CheckingOut, Cancelled> {}
-    static class CheckingOut implements OrderStatus, BiTransitionTo<Purchased, Cancelled> {}
-    static class Purchased implements OrderStatus, BiTransitionTo<Shipped, Failed> {
+    static final class Pending implements OrderStatus, BiTransitionTo<CheckingOut, Cancelled> {}
+    static final class CheckingOut implements OrderStatus, BiTransitionTo<Purchased, Cancelled> {}
+    static final class Purchased implements OrderStatus, BiTransitionTo<Shipped, Failed> {
         public void notifyProgress(Customer customer, EmailSender emailSender) {
             emailSender.sendEmail("fulfillment@mycompany.com", "Customer order pending");
             emailSender.sendEmail(customer.email(), "Your order is on its way");
         }
     }
 
-    static class Shipped implements OrderStatus, TransitionTo<Refunded> {}
-    static class Cancelled implements OrderStatus {
+    static final class Shipped implements OrderStatus, TransitionTo<Refunded> {}
+    static final class Cancelled implements OrderStatus {
         public void notifyProgress(Customer customer, EmailSender emailSender) {
             emailSender.sendEmail("fulfillment@mycompany.com", "Customer order cancelled");
             emailSender.sendEmail(customer.email(), "Your order has been cancelled");
         }
     }
-    class Failed implements OrderStatus {
+    final class Failed implements OrderStatus {
         @Override
         public void afterTransition(OrderStatus from) {
             failureLog.warning("Oh bother! failed from " + from.getClass().getSimpleName());
         }
     }
-    static class Refunded implements OrderStatus {}
+    static final class Refunded implements OrderStatus {}
 
     @Test
     public void typesafe_statemachine_example() {

@@ -11,19 +11,19 @@ import static org.junit.Assert.assertTrue;
 
 public class RegexExample {
 
-    interface APlusB extends State<APlusB> {
+    sealed interface APlusB extends State<APlusB> permits Start, A, B, NoMatch {
         static APlusB match(String s) {
             return new Start().match(s);
         }
     };
-    static class Start implements APlusB, BiTransitionTo<A,NoMatch> {
+    static final class Start implements APlusB, BiTransitionTo<A,NoMatch> {
         public APlusB match(String s) {
             if (s.length() < 1) return transition(NoMatch::new);
             if (s.charAt(0) == 'A') return transition(A::new).match(s.substring(1));
             return transition(NoMatch::new).match(s.substring(1));
         }
     }
-    static class A implements APlusB, TriTransitionTo<A,B,NoMatch> {
+    static final class A implements APlusB, TriTransitionTo<A,B,NoMatch> {
         public APlusB match(String s) {
             if (s.length() < 1) return transition(NoMatch::new);
             if (s.charAt(0) == 'A') return transition(A::new).match(s.substring(1));
@@ -31,13 +31,13 @@ public class RegexExample {
             return transition(NoMatch::new);
         }
     }
-    static class B implements APlusB, Match, TransitionTo<NoMatch> {
+    static final class B implements APlusB, Match, TransitionTo<NoMatch> {
         public APlusB match(String s) {
             if (s.length() < 1) return this;
             return transition(NoMatch::new);
         }
     }
-    static class NoMatch implements APlusB {
+    static final class NoMatch implements APlusB {
         public APlusB match(String s) {
             return this;
         }

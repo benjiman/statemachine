@@ -8,11 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 public class TrafficLightExample {
 
-    interface TrafficLight extends State<TrafficLight> {}
-    static class Green implements TrafficLight, TransitionTo<SolidAmber> {}
-    static class SolidAmber implements TrafficLight, TransitionTo<Red> {}
-    static class Red implements TrafficLight, TransitionTo<FlashingAmber> {}
-    static class FlashingAmber implements TrafficLight, TransitionTo<Green> {}
+    sealed interface TrafficLight extends State<TrafficLight> permits Green, SolidAmber, FlashingAmber, Red{}
+    static final class Green implements TrafficLight, TransitionTo<SolidAmber> {}
+    static final class SolidAmber implements TrafficLight, TransitionTo<Red> {}
+    static final class Red implements TrafficLight, TransitionTo<FlashingAmber> {}
+    static final class FlashingAmber implements TrafficLight, TransitionTo<Green> {}
 
 
     @Test
