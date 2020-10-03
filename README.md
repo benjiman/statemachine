@@ -18,7 +18,7 @@ static final class FlashingAmber implements TrafficLight, TransitionTo<Green> {}
 @Test
 public void traffic_light_typechecked_example() {
     Green signal = new Green();
-    //uncomment a transition and it will fail to compile.
+    // Comment out a transition and it will fail to compile.
     signal = signal
         .transition(SolidAmber::new)
         .transition(Red::new)
