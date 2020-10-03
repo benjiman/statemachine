@@ -216,6 +216,21 @@ public class StateMachineExample {
         State.valueOf(NotSealed.class, "N/A");
     }
 
+    @Test public void ordinal() {
+        assertEquals(0, State.ordinal(OrderStatus.class, Pending.class));
+        assertEquals(3, State.ordinal(OrderStatus.class, Shipped.class));
+    }
+
+    @Test public void ordinal_instance() {
+        assertEquals(0, new Pending().ordinal());
+        assertEquals(3, new Shipped().ordinal());
+    }
+    @Test
+    public void name() {
+        assertEquals("Pending", new Pending().name());
+        assertEquals("Shipped", new Shipped().name());
+    }
+    
     static <T> T[] array(T... ts) {
         return ts;
     }

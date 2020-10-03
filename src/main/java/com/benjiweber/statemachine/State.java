@@ -4,10 +4,7 @@ package com.benjiweber.statemachine;
 import java.lang.constant.ClassDesc;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -92,13 +89,17 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
     }
 
     static <T extends State<T>> Set<Class<T>> valuesSet(Class<T> stateMachineType) {
+        return new LinkedHashSet(
+            valuesList(stateMachineType)
+        );
+    }
+
+    static <T extends State<T>> List<Class> valuesList(Class<T> stateMachineType) {
         assertSealed(stateMachineType);
 
-        return new LinkedHashSet(
-            Stream.of(stateMachineType.permittedSubclasses())
+        return Stream.of(stateMachineType.permittedSubclasses())
                 .map(State::classFromDesc)
-                .collect(toList())
-        );
+                .collect(toList());
     }
 
     private static <T extends State<T>> void assertSealed(Class<T> stateMachineType) {
@@ -146,5 +147,17 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
         var typedArray = (Class<DOMAINSTATETYPE>[])Array.newInstance(domainType().getClass(), 0);
         return (Class<DOMAINSTATETYPE>[]) valuesSet(domainType()).toArray(typedArray);
 
+    }
+
+    static <T extends State<T>, U extends T> int ordinal(Class<T> stateMachineType, Class<U> instanceType) {
+        return valuesList(stateMachineType).indexOf(instanceType);
+    }
+
+    default int ordinal() {
+        return State.ordinal(domainType(), (Class<DOMAINSTATETYPE>)getClass());
+    }
+
+    default String name() {
+        return getClass().getSimpleName();
     }
 }
