@@ -4,9 +4,9 @@ import com.benjiweber.statemachine.State.InvalidStateTransitionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -165,7 +165,60 @@ public class StateMachineExample {
                 pending.validTransitionTypes()
         );
     }
+    static class NotSealed implements State<NotSealed> {}
+    @Test(expected = IllegalArgumentException.class)
+    public void non_sealed_type_not_enumerable() {
+        State.valuesSet(NotSealed.class);
+    }
 
+    @Test public void enumerable_set() {
+        assertEquals(
+            Set.of(Pending.class, CheckingOut.class, Purchased.class, Shipped.class, Cancelled.class, Failed.class, Refunded.class),
+            State.valuesSet(OrderStatus.class)
+        );
+    }
+
+    @Test public void enumerable_set_instance() {
+        assertEquals(
+            Set.of(Pending.class, CheckingOut.class, Purchased.class, Shipped.class, Cancelled.class, Failed.class, Refunded.class),
+            new Pending().valuesSet()
+        );
+    }
+
+    @Test public void enumerable_array() {
+        assertArrayEquals(
+            array(Pending.class, CheckingOut.class, Purchased.class, Shipped.class, Cancelled.class, Failed.class, Refunded.class),
+            State.values(OrderStatus.class)
+        );
+    }
+
+    @Test public void enumerable_array_instance() {
+        assertArrayEquals(
+            array(Pending.class, CheckingOut.class, Purchased.class, Shipped.class, Cancelled.class, Failed.class, Refunded.class),
+            new Pending().values()
+        );
+    }
+
+    @Test
+    public void value_of() {
+        assertEquals(Purchased.class, State.valueOf(OrderStatus.class, "Purchased"));
+        assertEquals(Cancelled.class, State.valueOf(OrderStatus.class, "Cancelled"));
+        assertEquals(Purchased.class, new Cancelled().valueOf("Purchased"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void invalid_value_of() {
+        State.valueOf(OrderStatus.class, "ThrownAway");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void non_sealed_value_of() {
+        State.valueOf(NotSealed.class, "N/A");
+    }
+
+    static <T> T[] array(T... ts) {
+        return ts;
+    }
 
     static class OhNoes extends Exception {}
 
