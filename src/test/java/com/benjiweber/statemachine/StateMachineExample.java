@@ -19,7 +19,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @RunWith(MockitoJUnitRunner.class)
 public class StateMachineExample {
 
-    sealed interface OrderStatus extends State<OrderStatus> permits Pending, CheckingOut, Purchased, Shipped, Cancelled, Failed, Refunded {
+    sealed interface OrderStatus
+            extends State<OrderStatus>
+            permits Pending, CheckingOut, Purchased, Shipped, Cancelled, Failed, Refunded {
         default void notifyProgress(Customer customer, EmailSender sender) {}
     }
     static final class Pending implements OrderStatus, BiTransitionTo<CheckingOut, Cancelled> {}

@@ -7,12 +7,13 @@ Enables both type checked and runtime checked transitions
 Typechecked, if we try to transition straight from green to red it will fail to compile
 
 ```java
-interface TrafficLight extends State<TrafficLight> {}
-static class Green implements TrafficLight, TransitionTo<SolidAmber> {}
-static class SolidAmber implements TrafficLight, TransitionTo<Red> {}
-static class Red implements TrafficLight, TransitionTo<FlashingAmber> {}
-static class FlashingAmber implements TrafficLight, TransitionTo<Green> {}
-
+sealed interface TrafficLight
+        extends State<TrafficLight>
+        permits Green, SolidAmber, FlashingAmber, Red {}
+static final class Green implements TrafficLight, TransitionTo<SolidAmber> {}
+static final class SolidAmber implements TrafficLight, TransitionTo<Red> {}
+static final class Red implements TrafficLight, TransitionTo<FlashingAmber> {}
+static final class FlashingAmber implements TrafficLight, TransitionTo<Green> {}
 
 @Test
 public void traffic_light_typechecked_example() {
@@ -29,7 +30,7 @@ public void traffic_light_typechecked_example() {
 We can still have typechecked transitions even where multiple state transitions are possible
 
 ```java
-static class Pending implements OrderStatus, BiTransitionTo<CheckingOut, Cancelled> {}
+static final class Pending implements OrderStatus, BiTransitionTo<CheckingOut, Cancelled> {}
 
 pending.transition(CheckingOut::new); // fine
 pending.transition(Cancelled::new);   // fine
@@ -82,16 +83,18 @@ public void behaviour_on_states() throws OhNoes {
     verify(emailSender).sendEmail("fulfillment@mycompany.com", "Customer order pending");
 }
 
-interface OrderStatus extends State<OrderStatus> {
+sealed interface OrderStatus
+        extends State<OrderStatus>
+        permits Pending, CheckingOut, Purchased, Shipped, Cancelled, Failed, Refunded {
     default void notifyProgress(Customer customer, EmailSender sender) {}
 }
-static class Purchased implements OrderStatus, BiTransitionTo<Shipped, Failed> {
+static final class Purchased implements OrderStatus, BiTransitionTo<Shipped, Failed> {
     public void notifyProgress(Customer customer, EmailSender emailSender) {
         emailSender.sendEmail("fulfillment@mycompany.com", "Customer order pending");
         emailSender.sendEmail(customer.email(), "Your order is on its way");
     }
 }
-static class Cancelled implements OrderStatus {
+static final class Cancelled implements OrderStatus {
     public void notifyProgress(Customer customer, EmailSender emailSender) {
         emailSender.sendEmail("fulfillment@mycompany.com", "Customer order cancelled");
         emailSender.sendEmail(customer.email(), "Your order has been cancelled");
@@ -104,7 +107,7 @@ We can also have guards before and after transitions. Our states can be non-stat
 
 ```java
 Logger failureLog = Logger.getLogger("failures");
-class Failed implements OrderStatus {
+final class Failed implements OrderStatus {
     @Override
     public void afterTransition(OrderStatus from) {
         failureLog.warning("Oh bother! failed from " + from.getClass().getSimpleName());
