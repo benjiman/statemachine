@@ -97,9 +97,8 @@ public interface State<DOMAINSTATETYPE extends State> extends StateGuards<DOMAIN
     static <T extends State<T>> List<Class> valuesList(Class<T> stateMachineType) {
         assertSealed(stateMachineType);
 
-        return Stream.of(stateMachineType.permittedSubclasses())
-                .map(State::classFromDesc)
-                .collect(toList());
+        return Stream.of(stateMachineType.getPermittedSubclasses())
+            .collect(toList());
     }
 
     private static <T extends State<T>> void assertSealed(Class<T> stateMachineType) {
