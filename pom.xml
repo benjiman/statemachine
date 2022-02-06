@@ -7,14 +7,18 @@
     <groupId>com.benjiweber</groupId>
     <artifactId>statemachine</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.15</source>
-                    <target>1.15</target>
+                    <source>17</source>
+                    <target>17</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
